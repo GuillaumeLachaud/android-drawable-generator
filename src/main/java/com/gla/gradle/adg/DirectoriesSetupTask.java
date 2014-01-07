@@ -10,7 +10,7 @@ public class DirectoriesSetupTask extends DefaultTask {
 
     @TaskAction
     public void run(){
-        System.out.println("TEST");
+        System.out.println(getExtensions().getByName("adg"));
     }
 
 }

@@ -9,9 +9,9 @@ public class ADGPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
+        project.getExtensions().create("adg", ADGConfigExtension.class);
         project.getTasks().getByName("clean").dependsOn("directoriesSetup");
         setupDirectoriesSetupTask(project);
-
     }
 
     private void setupDirectoriesSetupTask(Project project){
@@ -21,7 +21,6 @@ public class ADGPlugin implements Plugin<Project> {
         args.put("type", DirectoriesSetupTask.class);
         args.put("description", "This task reads config and prepares to find the right resources directories");
         project.task(args, taskName);
-
     }
 
 }
