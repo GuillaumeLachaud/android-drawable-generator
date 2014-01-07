@@ -1,9 +1,10 @@
-package com.gla.gradle.adg;
+package com.gla.gradle.adg.tasks;
 
+import com.gla.gradle.adg.ADGConfigExtension;
+import com.gla.gradle.adg.Density;
+import com.gla.gradle.adg.InvalidConfigurationException;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
-import org.im4java.core.ConvertCmd;
-import org.im4java.core.IMOperation;
 
 import java.io.File;
 import java.util.Arrays;
@@ -49,15 +50,6 @@ public class DirectoriesSetupTask extends DefaultTask {
         System.out.println("Min density to be generated : " + mMinDensity);
 
         createMissingFolders();
-
-        ConvertCmd cmd = new ConvertCmd();
-        IMOperation op = new IMOperation();
-        op.version();
-
-        try{
-            cmd.run(op);
-        } catch (Exception e){
-        }
 
     }
 
