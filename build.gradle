@@ -3,6 +3,7 @@ apply plugin: 'maven'
 
 dependencies {
     compile gradleApi()
+    compile 'org.im4java:im4java:1.4.0'
 }
 
 repositories {

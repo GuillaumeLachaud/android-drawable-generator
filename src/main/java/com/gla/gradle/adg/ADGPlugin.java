@@ -10,7 +10,7 @@ public class ADGPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         project.getExtensions().create("adg", ADGConfigExtension.class);
-        project.getTasks().getByName("clean").dependsOn("directoriesSetup");
+        project.getTasks().getByName("preBuild").dependsOn("directoriesSetup");
         setupDirectoriesSetupTask(project);
     }
 
