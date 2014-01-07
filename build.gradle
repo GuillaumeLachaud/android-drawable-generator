@@ -1,0 +1,21 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+dependencies {
+    compile gradleApi()
+}
+
+repositories {
+    mavenCentral()
+}
+
+group='com.gla.gradle'   //Group name makes easier to manager the packages.
+version='0.1-SNAPSHOT'
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri('../../repo'))
+        }
+    }
+}
