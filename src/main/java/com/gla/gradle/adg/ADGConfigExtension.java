@@ -5,20 +5,30 @@ package com.gla.gradle.adg;
  */
 public class ADGConfigExtension {
 
-    private String mSource;
+    private String mRefDensity;
+    private String mMinDensity;
 
     public ADGConfigExtension(){
     }
 
-    public ADGConfigExtension(String source){
-        mSource = source;
+    public ADGConfigExtension(String refDensity, String minDensity){
+        mRefDensity = refDensity;
+        mMinDensity = minDensity;
     }
 
-    public String getSource() {
-        return mSource;
+    public String getRefDensity() {
+        return mRefDensity;
     }
 
-    public void setSource(String mSource) {
-        this.mSource = mSource;
+    public void setRefDensity(String refDensity) {
+        this.mRefDensity = refDensity;
+    }
+
+    public String getMinDensity() {
+        return mMinDensity;
+    }
+
+    public void setMinDensity(String mMinDensity) {
+        this.mMinDensity = mMinDensity;
     }
 }

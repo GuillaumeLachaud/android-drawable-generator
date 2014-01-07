@@ -5,6 +5,7 @@ import org.gradle.api.tasks.TaskAction;
 import org.im4java.core.ConvertCmd;
 import org.im4java.core.IMOperation;
 
+import java.io.File;
 import java.util.Arrays;
 
 /**
@@ -17,35 +18,37 @@ import java.util.Arrays;
  */
 public class DirectoriesSetupTask extends DefaultTask {
 
-    private final static String DRAWABLE_RES_PREFIX = "drawable-%s";
-    private final static String DEFAULT_DENSITY = "xhdpi";
-    private final static String[] VALID_DENSITIES = {"ldpi", "mdpi", "hdpi", "xhdpi", "xxhdpi", "xxxhdpi"};
+    private final static Density DEFAULT_DENSITY = Density.XHDPI;
+    private final static Density DEFAULT_MIN_DENSITY = Density.MDPI;
+    private final static Density[] VALID_DENSITIES = {Density.LDPI, Density.MDPI, Density.HDPI, Density.XHDPI, Density.XXHDPI, Density.XXXHDPI};
+    private Density mRefDdensity = null;
+    private Density mMinDensity = null;
 
     @TaskAction
     public void run(){
 
-        String preferred = null;
-        String sourcePath = null;
-
         try{
-            preferred = ((ADGConfigExtension) getProject().getExtensions().getByName("adg")).getSource();
-            if(preferred == null){
-                throw new NullPointerException();
-            }
-            if(!Arrays.asList(VALID_DENSITIES).contains(preferred)){
-                throw new InvalidConfigurationException();
-            }
-            sourcePath = String.format(DRAWABLE_RES_PREFIX, preferred);
+            mRefDdensity = getDensityFromConfig(((ADGConfigExtension) getProject().getExtensions().getByName("adg")).getRefDensity());
         } catch (NullPointerException e){
             //We don't have any configuration. Let's use the default resource directory
-            sourcePath = String.format(DRAWABLE_RES_PREFIX, DEFAULT_DENSITY);
-        } catch (InvalidConfigurationException e){
-            throw new RuntimeException("[ADG] : Invalid configuration are not allowed");
+            mRefDdensity = DEFAULT_DENSITY;
         }
 
+        try{
+            mMinDensity = getDensityFromConfig(((ADGConfigExtension) getProject().getExtensions().getByName("adg")).getMinDensity());
+        } catch (NullPointerException e){
+            //We don't have any configuration. Let's use the default resource directory
+            mMinDensity = DEFAULT_MIN_DENSITY;
+        }
 
+        if(mMinDensity.compareTo(mRefDdensity) > 0){
+            throw new RuntimeException("[ADG] : Invalid configuration are not allowed : min Density is greater than or equal to reference density");
+        }
 
-        System.out.println("Source density to be used : " + sourcePath);
+        System.out.println("Source density to be used : " + mRefDdensity);
+        System.out.println("Min density to be generated : " + mMinDensity);
+
+        createMissingFolders();
 
         ConvertCmd cmd = new ConvertCmd();
         IMOperation op = new IMOperation();
@@ -54,6 +57,40 @@ public class DirectoriesSetupTask extends DefaultTask {
         try{
             cmd.run(op);
         } catch (Exception e){
+        }
+
+    }
+
+    private Density getDensityFromConfig(String density){
+
+        try{
+
+            if(density == null){
+                throw new NullPointerException();
+            }
+
+            Density dst = Density.valueOf(density.toUpperCase());
+
+            if(!Arrays.asList(VALID_DENSITIES).contains(dst)){
+                throw new InvalidConfigurationException();
+            }
+            return dst;
+        } catch (IllegalArgumentException e){
+            System.out.println(e);
+            throw new RuntimeException("[ADG] : Invalid configuration are not allowed");
+        }
+
+    }
+
+    private void createMissingFolders(){
+
+        String resDirectory = getProject().getProjectDir().getAbsolutePath() + "/src/main/res/%s";
+
+        for(int i = mMinDensity.ordinal() ; i < mRefDdensity.ordinal() ; i++){
+            File resDir = new File(String.format(resDirectory, Density.values()[i].getFolder()));
+            if(resDir == null || !resDir.exists()){
+                resDir.mkdir();
+            }
         }
 
     }
