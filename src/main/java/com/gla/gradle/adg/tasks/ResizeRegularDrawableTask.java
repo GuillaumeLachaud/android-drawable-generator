@@ -44,15 +44,8 @@ public class ResizeRegularDrawableTask  extends DefaultTask {
             System.out.println(String.format(" Density %s has %d files", currentDensity, densityImages.size()));
             removeUnInheritedFiled(densityImages, sourceImages);
             removedAlreadyGeneratedFiles(densityImages, sourceImages);
-            int filesToGenerate = sourceImages.size() - densityImages.size();
-            if(filesToGenerate < 0){
-                filesToGenerate = 0;
-            }
-            if(shouldOverwrite()){
-                System.out.println(String.format(" %d files to generate", sourceImages.size()));
-            } else {
-                System.out.println(String.format(" %d files to generate", filesToGenerate));
-            }
+
+            System.out.println(String.format(" %d files to generate", sourceImages.size()));
 
             ConvertCmd cmd = new ConvertCmd();
             cmd.setSearchPath(System.getenv("PATH")+":/usr/local/bin");
