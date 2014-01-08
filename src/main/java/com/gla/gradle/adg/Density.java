@@ -5,19 +5,21 @@ package com.gla.gradle.adg;
  */
 public enum Density {
 
-    LDPI("ldpi"),
-    MDPI("mdpi"),
-    HDPI("hdpi"),
-    XHDPI("xhdpi"),
-    XXHDPI("xxhdpi"),
-    XXXHDPI("xxxhdpi");
+    LDPI("ldpi", 120),
+    MDPI("mdpi", 160),
+    HDPI("hdpi", 240),
+    XHDPI("xhdpi", 320),
+    XXHDPI("xxhdpi", 480),
+    XXXHDPI("xxxhdpi", 640);
 
     private String mDensity;
     private String mFolder;
+    private int mValue;
 
-    Density(String density){
+    Density(String density, int value){
         mDensity = density;
-        mFolder = String.format("drawable-%s", density);
+        mFolder = String.format("drawable-%s/", density);
+        mValue = value;
     }
 
     public String getDensity(){
@@ -26,6 +28,10 @@ public enum Density {
 
     public String getFolder(){
         return mFolder;
+    }
+
+    public int getValue(){
+        return mValue;
     }
 
 

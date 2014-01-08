@@ -22,17 +22,20 @@ public class DirectoriesSetupTask extends DefaultTask {
     private final static Density DEFAULT_DENSITY = Density.XHDPI;
     private final static Density DEFAULT_MIN_DENSITY = Density.MDPI;
     private final static Density[] VALID_DENSITIES = {Density.LDPI, Density.MDPI, Density.HDPI, Density.XHDPI, Density.XXHDPI, Density.XXXHDPI};
-    private Density mRefDdensity = null;
+    private Density mRefDensity = null;
     private Density mMinDensity = null;
+
+    public static final String REF_DENSITY_PROPERTY = "mRefDensity";
+    public static final String MIN_DENSITY_PROPERTY = "mMinDdensity";
 
     @TaskAction
     public void run(){
 
         try{
-            mRefDdensity = getDensityFromConfig(((ADGConfigExtension) getProject().getExtensions().getByName("adg")).getRefDensity());
+            mRefDensity = getDensityFromConfig(((ADGConfigExtension) getProject().getExtensions().getByName("adg")).getRefDensity());
         } catch (NullPointerException e){
             //We don't have any configuration. Let's use the default resource directory
-            mRefDdensity = DEFAULT_DENSITY;
+            mRefDensity = DEFAULT_DENSITY;
         }
 
         try{
@@ -42,12 +45,15 @@ public class DirectoriesSetupTask extends DefaultTask {
             mMinDensity = DEFAULT_MIN_DENSITY;
         }
 
-        if(mMinDensity.compareTo(mRefDdensity) > 0){
+        if(mMinDensity.compareTo(mRefDensity) > 0){
             throw new RuntimeException("[ADG] : Invalid configuration are not allowed : min Density is greater than or equal to reference density");
         }
 
-        System.out.println("Source density to be used : " + mRefDdensity);
+        System.out.println("Source density to be used : " + mRefDensity);
         System.out.println("Min density to be generated : " + mMinDensity);
+
+        getProject().getExtensions().getExtraProperties().set(REF_DENSITY_PROPERTY, mRefDensity);
+        getProject().getExtensions().getExtraProperties().set(MIN_DENSITY_PROPERTY, mMinDensity);
 
         createMissingFolders();
 
@@ -78,7 +84,7 @@ public class DirectoriesSetupTask extends DefaultTask {
 
         String resDirectory = getProject().getProjectDir().getAbsolutePath() + "/src/main/res/%s";
 
-        for(int i = mMinDensity.ordinal() ; i < mRefDdensity.ordinal() ; i++){
+        for(int i = mMinDensity.ordinal() ; i < mRefDensity.ordinal() ; i++){
             File resDir = new File(String.format(resDirectory, Density.values()[i].getFolder()));
             if(resDir == null || !resDir.exists()){
                 resDir.mkdir();
