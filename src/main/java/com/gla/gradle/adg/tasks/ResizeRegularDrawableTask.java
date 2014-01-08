@@ -1,5 +1,6 @@
 package com.gla.gradle.adg.tasks;
 
+import com.gla.gradle.adg.ADGConfigExtension;
 import com.gla.gradle.adg.Density;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
@@ -32,23 +33,38 @@ public class ResizeRegularDrawableTask  extends DefaultTask {
         System.out.println(String.format("Ref Density %s has %d files", mRefDensity, sourceImages.size()));
 
         for(int i = mMinDensity.ordinal() ; i < mRefDensity.ordinal() ; i++){
+
+            sourceImages = new LinkedList<String>(Arrays.asList(new File(resDirectory + mRefDensity.getFolder()).list()));
+
+            removeNinePatchesFromList(sourceImages);
+
             Density currentDensity = Density.values()[i];
             List<String> densityImages = new LinkedList<String>(Arrays.asList(new File(resDirectory + currentDensity.getFolder()).list()));
             removeNinePatchesFromList(densityImages);
             System.out.println(String.format(" Density %s has %d files", currentDensity, densityImages.size()));
             removeUnInheritedFiled(densityImages, sourceImages);
-            System.out.println(String.format(" %d files to generate", sourceImages.size() - densityImages.size()));
+            removedAlreadyGeneratedFiles(densityImages, sourceImages);
+            int filesToGenerate = sourceImages.size() - densityImages.size();
+            if(filesToGenerate < 0){
+                filesToGenerate = 0;
+            }
+            if(shouldOverwrite()){
+                System.out.println(String.format(" %d files to generate", sourceImages.size()));
+            } else {
+                System.out.println(String.format(" %d files to generate", filesToGenerate));
+            }
 
             ConvertCmd cmd = new ConvertCmd();
+            cmd.setSearchPath(System.getenv("PATH")+":/usr/local/bin");
             IMOperation op = new IMOperation();
             op.addImage();
-            op.comment("adg generated");
+            op.comment("ADG_GENERATED");//Doesn't seem to work
             op.addDynamicOperation(new DynamicResizeOperation(mRefDensity, currentDensity));
             op.addImage();
 
             for(int j = 0 ; j < sourceImages.size() ; j++){
                 try {
-                    cmd.run(op,resDirectory + mRefDensity.getFolder() + sourceImages.get(j),resDirectory + currentDensity.getFolder() + sourceImages.get(j));
+                    cmd.run(op,resDirectory + mRefDensity.getFolder() + sourceImages.get(j), resDirectory + currentDensity.getFolder() + sourceImages.get(j));
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
@@ -88,6 +104,20 @@ public class ResizeRegularDrawableTask  extends DefaultTask {
 
     }
 
+    private void removedAlreadyGeneratedFiles(List<String> densityImages, List<String> sourceImages){
+
+        if(shouldOverwrite()){
+            return;
+        }
+
+        Iterator<String> ite = sourceImages.iterator();
+        while (ite.hasNext()){
+            if(densityImages.contains(ite.next())){
+                ite.remove();
+            }
+        }
+    }
+
     class DynamicResizeOperation implements DynamicOperation {
 
         private int percentage;
@@ -99,12 +129,14 @@ public class ResizeRegularDrawableTask  extends DefaultTask {
 
         @Override
         public Operation resolveOperation(Object... pImages) throws IM4JavaException {
-            System.out.println(pImages);
-            //return the resize operation if and only if both height and width are non zero positive values
             IMOperation op = new IMOperation();
             op.resize(percentage, percentage, "%");
             return op;
         }
+    }
+
+    private boolean shouldOverwrite(){
+        return ((ADGConfigExtension) getProject().getExtensions().getByName("adg")).isForceOverwrite();
     }
 
 }

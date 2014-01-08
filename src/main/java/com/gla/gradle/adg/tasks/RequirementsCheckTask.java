@@ -14,12 +14,14 @@ public class RequirementsCheckTask extends DefaultTask {
     public void run(){
 
         ConvertCmd cmd = new ConvertCmd();
+        cmd.setSearchPath(System.getenv("PATH")+":/usr/local/bin");
         IMOperation op = new IMOperation();
         op.version();
 
         try{
             cmd.run(op);
         } catch (Exception e){
+            e.printStackTrace();
             throw new RuntimeException("[ADG] ImageMagick is missing. Please install ImageMagick and try again");
         }
 

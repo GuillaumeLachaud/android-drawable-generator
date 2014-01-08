@@ -7,6 +7,7 @@ public class ADGConfigExtension {
 
     private String mRefDensity;
     private String mMinDensity;
+    private boolean mForceOverwrite = false;
 
     public ADGConfigExtension(){
     }
@@ -30,5 +31,13 @@ public class ADGConfigExtension {
 
     public void setMinDensity(String mMinDensity) {
         this.mMinDensity = mMinDensity;
+    }
+
+    public boolean isForceOverwrite() {
+        return mForceOverwrite;
+    }
+
+    public void setForceOverwrite(boolean mForceOverwrite) {
+        this.mForceOverwrite = mForceOverwrite;
     }
 }
